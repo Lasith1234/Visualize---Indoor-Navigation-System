@@ -11,6 +11,10 @@ const char* password = "";
 
 #define WifiConnected 5
 
+//Vibration Motor================================================
+
+#define motorInput 14
+
 
 void wifiConnect(){
   Serial.println("Connecting");
@@ -25,6 +29,57 @@ void wifiConnect(){
 
   digitalWrite(WifiConnected,HIGH);
   Serial.println("Connection Complete");
+
+}
+
+void moveForward(){
+  analogWrite(motorInput,225);
+  delay(1000);
+}
+
+void turnLeft(){
+  for (int i = 0; i < 1; i++)
+  {
+    analogWrite(motorInput,225);
+    delay(100);
+    analogWrite(motorInput,0);
+    delay(100);
+  }
+  analogWrite(motorInput,225);
+  delay(800);
+  analogWrite(motorInput,0); 
+}
+
+void turnRight(){
+  analogWrite(motorInput,225);
+  delay(800);
+  analogWrite(motorInput,0); 
+  for (int i = 0; i < 2; i++)
+  {
+    analogWrite(motorInput,225);
+    delay(100);
+    analogWrite(motorInput,0);
+    delay(100);
+  }
+
+}
+
+void moveBack(){
+  for (int i = 0; i < 2; i++)
+  {
+    analogWrite(motorInput,225);
+    delay(300);
+    analogWrite(motorInput,0);
+    delay(300);
+  }
+
+  for (int i = 0; i < 2; i++)
+  {
+    analogWrite(motorInput,225);
+    delay(100);
+    analogWrite(motorInput,0);
+    delay(100);
+  }
 
 }
 
@@ -58,6 +113,8 @@ void playSpeaker(){
 
 void setup() {
   pinMode(WifiConnected,OUTPUT);
+  pinMode(motorInput,OUTPUT);
+
   Serial.begin(9600);
 
 }
