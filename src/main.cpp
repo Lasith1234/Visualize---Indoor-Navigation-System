@@ -34,7 +34,8 @@ void wifiConnect(){
 
 void moveForward(){
   analogWrite(motorInput,225);
-  delay(1000);
+  delay(800);
+  analogWrite(motorInput,0);
 }
 
 void turnLeft(){
@@ -46,20 +47,21 @@ void turnLeft(){
     delay(100);
   }
   analogWrite(motorInput,225);
-  delay(800);
+  delay(500);
   analogWrite(motorInput,0); 
 }
 
 void turnRight(){
   analogWrite(motorInput,225);
-  delay(800);
+  delay(500);
   analogWrite(motorInput,0); 
+  delay(500);
   for (int i = 0; i < 2; i++)
   {
     analogWrite(motorInput,225);
-    delay(100);
+    delay(150);
     analogWrite(motorInput,0);
-    delay(100);
+    delay(150);
   }
 
 }
@@ -116,6 +118,14 @@ void setup() {
   pinMode(motorInput,OUTPUT);
 
   Serial.begin(9600);
+
+  // moveForward();
+  // delay(2000);
+  // turnLeft();
+  // delay(2000);
+  turnRight();
+  // delay(2000);
+  // moveBack();
 
 }
 
