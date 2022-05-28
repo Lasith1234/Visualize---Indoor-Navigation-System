@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include "spi_flash.h"
 
 using namespace std;
 
@@ -23,7 +24,8 @@ const char* password = "";
 
 //WAV File Meta Data=============================================
 
-const int sampleRate = 44100;
+// const int sampleRate = 44100;
+const int sampleRate = 16000;
 const int bitDepth = 16;
 
 //===============================================================
@@ -194,6 +196,10 @@ void setup() {
 
   Serial.begin(9600);
 
+if (!SPIFFS.begin())
+  {
+    Serial.println("Error: mounting SPIFFS");
+  }
   // moveForward();
   // delay(2000);
   // turnLeft();
