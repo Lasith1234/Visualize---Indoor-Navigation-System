@@ -7,6 +7,8 @@
 #include <cmath>
 #include <fstream>
 #include "spi_flash.h"
+#include <FS.h>
+
 
 using namespace std;
 
@@ -28,7 +30,24 @@ const char* password = "";
 const int sampleRate = 16000;
 const int bitDepth = 16;
 
+// Mic Input ====================================================
+
+#define micInput A0
+
 //===============================================================
+
+int getAnalogSignal(){
+    // int count = 0;
+    //int reading;
+    // while (count < 120)
+    // {
+    //   reading = analogRead(micInput);
+    //   Serial.println(reading);
+    //   delay(100);
+    //   count++;
+    // }
+    return analogRead(micInput);
+}
 
 class sineOscillator{
   float frequency, amplitude, angle = 0.0f ,offset = 0.0;
@@ -46,6 +65,60 @@ class sineOscillator{
 
 };
 
+// void writeToFile(ofstream &file, int value, int size){
+//   file.write(reinterpret_cast<const char*> (&value), size);
+// }
+
+// int createWAV(){
+//   int duration =5;
+//   File audioFile;
+//   audioFile = SPIFFS.open("waveform.wav", "w");
+//   sineOscillator soc(440, 0.5);
+
+//   //File file = SPIFFS.open
+
+//   //Header chunk
+//   audioFile.print("RIFF");
+//   audioFile.print("----");
+//   audioFile.print("WAVE");
+
+
+//   //Format chunk
+//   audioFile.print("fmt ");
+  
+//   writeToFile(audioFile, 16, 4);  //Size
+//   writeToFile(audioFile, 1, 2);   //compression code
+//   writeToFile(audioFile, 1, 2);   //Number of channels
+//   writeToFile(audioFile, sampleRate, 4);    //Sample Rate
+//   writeToFile(audioFile, sampleRate * bitDepth / 8, 4);  //Byte Rate
+//   writeToFile(audioFile, bitDepth / 8, 2);   //Block Align
+//   writeToFile(audioFile, bitDepth, 2); //Bit Depth
+
+//   //Data Chunk
+//   audioFile << "data";
+//   audioFile << "----";
+
+//   int preAudioPosition = audioFile.tellp();
+//   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
+//   for (int i = 0; i < sampleRate * duration; i++)
+//   {
+//     auto sample = soc.process();
+//     int intSample = static_cast<int> (sample * maxAmplitude);
+//     writeToFile(audioFile, intSample, 2);
+//   }
+
+//   int postAudioPosition = audioFile.tellp();
+
+//   audioFile.seekp(preAudioPosition - 4);
+//   writeToFile(audioFile, postAudioPosition - preAudioPosition, 4);
+
+//   audioFile.seekp(4, ios::beg);
+//   writeToFile(audioFile, postAudioPosition - 8, 4);
+
+//   audioFile.close();
+//   return 0;  
+// }
+
 void writeToFile(ofstream &file, int value, int size){
   file.write(reinterpret_cast<const char*> (&value), size);
 }
@@ -53,8 +126,10 @@ void writeToFile(ofstream &file, int value, int size){
 int createWAV(){
   int duration =2;
   ofstream audioFile;
-  audioFile.open("waveform.wav", ios::binary);
+  audioFile.open("data/waveform.wav", ios::binary);
   sineOscillator soc(440, 0.5);
+
+  //File file = SPIFFS.open
 
   //Header chunk
   audioFile << "RIFF";
@@ -79,7 +154,8 @@ int createWAV(){
   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
   for (int i = 0; i < sampleRate * duration; i++)
   {
-    auto sample = soc.process();
+    //auto sample = soc.process();
+    auto sample = getAnalogSignal();
     int intSample = static_cast<int> (sample * maxAmplitude);
     writeToFile(audioFile, intSample, 2);
   }
@@ -190,21 +266,38 @@ void playSpeaker(){
    
 }
 
+
 void setup() {
   pinMode(WifiConnected,OUTPUT);
   pinMode(motorInput,OUTPUT);
 
   Serial.begin(9600);
 
-if (!SPIFFS.begin())
-  {
-    Serial.println("Error: mounting SPIFFS");
-  }
+  if (!SPIFFS.begin())
+    {
+      Serial.println("Error: mounting SPIFFS");
+    }
+  //createWAV();
+
+  getAnalogSignal();
+
+  //File root = SPIFFS.open("/");
+ 
+  //File file = root.openNextFile();
+ 
+  // while(file){
+ 
+  //     Serial.print("FILE: ");
+  //     Serial.println(file.name());
+ 
+  //     file = root.openNextFile();
+  // }
+
   // moveForward();
   // delay(2000);
   // turnLeft();
   // delay(2000);
-  turnRight();
+  //turnRight();
   // delay(2000);
   // moveBack();
 
