@@ -7,8 +7,9 @@
 #include <cmath>
 #include <fstream>
 #include "spi_flash.h"
-#include <FS.h>
-
+// #include <FS.h>
+// #include <SdFat.h>
+#include <SD.h>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ const char* password = "";
 
 //Vibration Motor================================================
 
-#define motorInput 14
+#define motorInput 5
 
 //WAV File Meta Data=============================================
 
@@ -123,6 +124,16 @@ void writeToFile(ofstream &file, int value, int size){
   file.write(reinterpret_cast<const char*> (&value), size);
 }
 
+void createFile(){
+  File audioFile = SD.open("waveform.wav", ios::binary);
+  //File newFile = SD.open("Testing.txt", "w");
+  audioFile.write("RIFF");
+
+  
+  Serial.println("Done writting");
+  audioFile.close();
+}
+
 int createWAV(){
   int duration =2;
   ofstream audioFile;
@@ -154,8 +165,8 @@ int createWAV(){
   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
   for (int i = 0; i < sampleRate * duration; i++)
   {
-    //auto sample = soc.process();
-    auto sample = getAnalogSignal();
+    auto sample = soc.process();
+    //auto sample = getAnalogSignal();
     int intSample = static_cast<int> (sample * maxAmplitude);
     writeToFile(audioFile, intSample, 2);
   }
@@ -169,7 +180,7 @@ int createWAV(){
   writeToFile(audioFile, postAudioPosition - 8, 4);
 
   audioFile.close();
-  return 0;  
+  return 0;   
 }
 
 void wifiConnect(){
@@ -266,20 +277,30 @@ void playSpeaker(){
    
 }
 
-
 void setup() {
   pinMode(WifiConnected,OUTPUT);
   pinMode(motorInput,OUTPUT);
 
   Serial.begin(9600);
+  //sd.begin();
 
-  if (!SPIFFS.begin())
-    {
-      Serial.println("Error: mounting SPIFFS");
-    }
+  if (!SD.begin(15))
+  {
+    Serial.println("SD Card Initialization Failed !");
+    while(1);
+  }
+  
+  Serial.println("Initialization Done!");
+  //createFile();
+  createWAV();
+
+  // if (!SPIFFS.begin())
+  //   {
+  //     Serial.println("Error: mounting SPIFFS");
+  //   }
   //createWAV();
 
-  getAnalogSignal();
+  //getAnalogSignal();
 
   //File root = SPIFFS.open("/");
  
@@ -297,7 +318,7 @@ void setup() {
   // delay(2000);
   // turnLeft();
   // delay(2000);
-  //turnRight();
+  // turnRight();
   // delay(2000);
   // moveBack();
 
