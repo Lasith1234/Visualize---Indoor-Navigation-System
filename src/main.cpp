@@ -6,10 +6,11 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
-#include "spi_flash.h"
-// #include <FS.h>
+// #include "spi_flash.h"
+//#include <FS.h>
 // #include <SdFat.h>
 #include <SD.h>
+#include <SPI.h>
 #include <sstream>
 #include <string>
 
@@ -30,7 +31,7 @@ const char* password = "";
 //WAV File Meta Data=============================================
 
 // const int sampleRate = 44100;
-const int sampleRate = 16000;
+const int sampleRate = 8000;
 const int bitDepth = 16;
 
 // Mic Input ====================================================
@@ -68,68 +69,68 @@ class sineOscillator{
 
 };
 
-// void writeToFile(ofstream &file, int value, int size){
-//   file.write(reinterpret_cast<const char*> (&value), size);
-// }
-
-// int createWAV(){
-//   int duration =5;
-//   File audioFile;
-//   audioFile = SPIFFS.open("waveform.wav", "w");
-//   sineOscillator soc(440, 0.5);
-
-//   //File file = SPIFFS.open
-
-//   //Header chunk
-//   audioFile.print("RIFF");
-//   audioFile.print("----");
-//   audioFile.print("WAVE");
-
-
-//   //Format chunk
-//   audioFile.print("fmt ");
-  
-//   writeToFile(audioFile, 16, 4);  //Size
-//   writeToFile(audioFile, 1, 2);   //compression code
-//   writeToFile(audioFile, 1, 2);   //Number of channels
-//   writeToFile(audioFile, sampleRate, 4);    //Sample Rate
-//   writeToFile(audioFile, sampleRate * bitDepth / 8, 4);  //Byte Rate
-//   writeToFile(audioFile, bitDepth / 8, 2);   //Block Align
-//   writeToFile(audioFile, bitDepth, 2); //Bit Depth
-
-//   //Data Chunk
-//   audioFile << "data";
-//   audioFile << "----";
-
-//   int preAudioPosition = audioFile.tellp();
-//   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
-//   for (int i = 0; i < sampleRate * duration; i++)
-//   {
-//     auto sample = soc.process();
-//     int intSample = static_cast<int> (sample * maxAmplitude);
-//     writeToFile(audioFile, intSample, 2);
-//   }
-
-//   int postAudioPosition = audioFile.tellp();
-
-//   audioFile.seekp(preAudioPosition - 4);
-//   writeToFile(audioFile, postAudioPosition - preAudioPosition, 4);
-
-//   audioFile.seekp(4, ios::beg);
-//   writeToFile(audioFile, postAudioPosition - 8, 4);
-
-//   audioFile.close();
-//   return 0;  
-// }
-
 void writeToFile(ofstream &file, int value, int size){
   file.write(reinterpret_cast<const char*> (&value), size);
 }
 
+// // int createWAV(){
+// //   int duration =5;
+// //   File audioFile;
+// //   audioFile = SPIFFS.open("waveform.wav", "w");
+// //   sineOscillator soc(440, 0.5);
+
+// //   //File file = SPIFFS.open
+
+// //   //Header chunk
+// //   audioFile.print("RIFF");
+// //   audioFile.print("----");
+// //   audioFile.print("WAVE");
+
+
+// //   //Format chunk
+// //   audioFile.print("fmt ");
+  
+// //   writeToFile(audioFile, 16, 4);  //Size
+// //   writeToFile(audioFile, 1, 2);   //compression code
+// //   writeToFile(audioFile, 1, 2);   //Number of channels
+// //   writeToFile(audioFile, sampleRate, 4);    //Sample Rate
+// //   writeToFile(audioFile, sampleRate * bitDepth / 8, 4);  //Byte Rate
+// //   writeToFile(audioFile, bitDepth / 8, 2);   //Block Align
+// //   writeToFile(audioFile, bitDepth, 2); //Bit Depth
+
+// //   //Data Chunk
+// //   audioFile << "data";
+// //   audioFile << "----";
+
+// //   int preAudioPosition = audioFile.tellp();
+// //   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
+// //   for (int i = 0; i < sampleRate * duration; i++)
+// //   {
+// //     auto sample = soc.process();
+// //     int intSample = static_cast<int> (sample * maxAmplitude);
+// //     writeToFile(audioFile, intSample, 2);
+// //   }
+
+// //   int postAudioPosition = audioFile.tellp();
+
+// //   audioFile.seekp(preAudioPosition - 4);
+// //   writeToFile(audioFile, postAudioPosition - preAudioPosition, 4);
+
+// //   audioFile.seekp(4, ios::beg);
+// //   writeToFile(audioFile, postAudioPosition - 8, 4);
+
+// //   audioFile.close();
+// //   return 0;  
+// // }
+
+// // void writeToFile(ofstream &file, int value, int size){
+// //   file.write(reinterpret_cast<const char*> (&value), size);
+// // }
+
 void createFile(){
   //File audioFile = SD.open("waveform.wav", FILE_WRITE);
-  File newFile = SD.open("Testing.txt", "w");
-  newFile.write("RIFF");
+  File newFile = SD.open("MyFile.txt", "w");
+  newFile.write("Finally working");
 
   
   Serial.println("Done writting");
@@ -142,68 +143,101 @@ void convNwrite(stringstream &ss , int value , int size){
   unsigned char c = 0;
   unsigned char d = 0;
 
+  string temp_str = "";
+
   a |= value;
-  ss << a;
+  temp_str.push_back(a);
+  //ss << a;
+  //Serial.println(temp_str.c_str());
 
   b |= (value >> 8);
-  ss << b;
+  temp_str.push_back(b);
+  //ss << b;
+  //Serial.println(temp_str.c_str());
 
   if(size == 4){
     c |= (value >> 16);
-    ss << c;
+    temp_str.push_back(c);
+    //ss << c;
+    //Serial.println(temp_str.c_str());
 
     d |= (value >> 24);
-    ss << d;
+    temp_str.push_back(d);
+    //ss << d;
+    //Serial.println(temp_str.c_str());
   }
+  Serial.print(temp_str.c_str());
+  ss << temp_str;
 }
 
-int CreateFile2(string data, int chunkSize, int subSzie){
+void CreateFile2(string data, int chunkSize, int subSzie){
 
   stringstream inputString;
   string finalInput;
+  string test;
 
+  File newFile = SD.open("Audio2.wav", "w");
 
   //Header chunk
   inputString << "RIFF";
+  Serial.print("Chunk Size:");
+  Serial.println(chunkSize);
   convNwrite(inputString, chunkSize, 4);
   inputString << "WAVE";
 
   //Format chunk
-  inputString << "fmt ";
-  convNwrite(inputString, 16, 4);
-  convNwrite(inputString, 1, 2);  //compression code
-  convNwrite(inputString, 1, 2);   //Number of channels
-  convNwrite(inputString, sampleRate, 4);    //Sample Rate
-  convNwrite(inputString, sampleRate * bitDepth / 8, 4);  //Byte Rate
-  convNwrite(inputString, bitDepth / 8, 2);   //Block Align
-  convNwrite(inputString, bitDepth, 2); //Bit Depth
+  // inputString << "fmt ";
+  // convNwrite(inputString, 16, 4);
+  // convNwrite(inputString, 1, 2);  //compression code
+  // //test = inputString.str();
+  // Serial.println(inputString.str().c_str());
 
-  //Data Chunk
-  inputString << "data";
-  convNwrite(inputString, subSzie, 4);
+  // convNwrite(inputString, 1, 2);   //Number of channels
+  // convNwrite(inputString, sampleRate, 4);    //Sample Rate
+  // convNwrite(inputString, sampleRate * bitDepth / 8, 4);  //Byte Rate
+  // convNwrite(inputString, bitDepth / 8, 2);   //Block Align
+  // convNwrite(inputString, bitDepth, 2); //Bit Depth
 
-  inputString << data;
-  inputString >> finalInput;
+  // //Data Chunk
+  // inputString << "data";
+  // convNwrite(inputString, subSzie, 4);
 
+  // inputString << data;
+  // finalInput = inputString.str();
+  //inputString >> finalInput;
+
+  newFile.write(finalInput.c_str());
+  Serial.println("WAV file written!!!");
+  newFile.close();
 
 
 }
 
 int createWAV(){
+
+  
   int duration =2;
   ofstream audioFile;
   string data;
   stringstream dataStream;
-
-  audioFile.open("data/waveform.wav", ios::binary);
-
-  int preAudioPosition = audioFile.tellp();
+  sineOscillator soc(440, 0.5);
   
-  for (int i = 0; i < sampleRate * duration; i++)
+  audioFile.open("data/waveform.wav", ios::binary);
+  
+  int preAudioPosition = audioFile.tellp();
+  auto maxAmplitude = pow(2, bitDepth - 1) - 1;
+  for (int i = 0; i < 1000; i++)
   {
+
+    // for loop --  sampleRate * duration
     //auto sample = soc.process();
-    auto sample = getAnalogSignal();
-    convNwrite(dataStream, sample, 2);
+    //auto sample = getAnalogSignal();
+
+    auto sample = soc.process();
+    //auto sample = getAnalogSignal();
+    int intSample = static_cast<int> (sample * maxAmplitude);
+    writeToFile(audioFile, intSample, 2);
+    convNwrite(dataStream, intSample, 2);
   
   }
 
@@ -212,67 +246,68 @@ int createWAV(){
   int postAudioPosition = audioFile.tellp();
   CreateFile2(data, postAudioPosition - preAudioPosition, postAudioPosition - 8);
   audioFile.close();
+  
 
   return 0;   
 }
 
-// int createWAV(){
-//   int duration =2;
-//   ofstream audioFile;
+// // int createWAV(){
+// //   int duration =2;
+// //   ofstream audioFile;
 
-//   string data;
-//   stringstream dataStream;
+// //   string data;
+// //   stringstream dataStream;
 
-//   audioFile.open("data/waveform.wav", ios::binary);
-//   sineOscillator soc(440, 0.5);
+// //   audioFile.open("data/waveform.wav", ios::binary);
+// //   sineOscillator soc(440, 0.5);
 
-//   //File file = SPIFFS.open
+// //   //File file = SPIFFS.open
 
-//   //Header chunk
-//   audioFile << "RIFF";
-//   audioFile << "----";
-//   audioFile << "WAVE";
+// //   //Header chunk
+// //   audioFile << "RIFF";
+// //   audioFile << "----";
+// //   audioFile << "WAVE";
 
-//   //Format chunk
-//   audioFile << "fmt ";
-//   writeToFile(audioFile, 16, 4);  //Size
-//   writeToFile(audioFile, 1, 2);   //compression code
-//   writeToFile(audioFile, 1, 2);   //Number of channels
-//   writeToFile(audioFile, sampleRate, 4);    //Sample Rate
-//   writeToFile(audioFile, sampleRate * bitDepth / 8, 4);  //Byte Rate
-//   writeToFile(audioFile, bitDepth / 8, 2);   //Block Align
-//   writeToFile(audioFile, bitDepth, 2); //Bit Depth
+// //   //Format chunk
+// //   audioFile << "fmt ";
+// //   writeToFile(audioFile, 16, 4);  //Size
+// //   writeToFile(audioFile, 1, 2);   //compression code
+// //   writeToFile(audioFile, 1, 2);   //Number of channels
+// //   writeToFile(audioFile, sampleRate, 4);    //Sample Rate
+// //   writeToFile(audioFile, sampleRate * bitDepth / 8, 4);  //Byte Rate
+// //   writeToFile(audioFile, bitDepth / 8, 2);   //Block Align
+// //   writeToFile(audioFile, bitDepth, 2); //Bit Depth
 
-//   //Data Chunk
-//   audioFile << "data";
-//   audioFile << "----";
+// //   //Data Chunk
+// //   audioFile << "data";
+// //   audioFile << "----";
 
-//   int preAudioPosition = audioFile.tellp();
-//   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
-//   for (int i = 0; i < sampleRate * duration; i++)
-//   {
-//     //auto sample = soc.process();
-//     auto sample = getAnalogSignal();
-//     int intSample = static_cast<int> (sample * maxAmplitude);
-//     convNwrite(dataStream, intSample, 2);
-//     //writeToFile(audioFile, intSample, 2);
-//   }
+// //   int preAudioPosition = audioFile.tellp();
+// //   auto maxAmplitude = pow(2, bitDepth - 1) - 1;
+// //   for (int i = 0; i < sampleRate * duration; i++)
+// //   {
+// //     //auto sample = soc.process();
+// //     auto sample = getAnalogSignal();
+// //     int intSample = static_cast<int> (sample * maxAmplitude);
+// //     convNwrite(dataStream, intSample, 2);
+// //     //writeToFile(audioFile, intSample, 2);
+// //   }
 
-//   dataStream >> data;
+// //   dataStream >> data;
 
-//   int postAudioPosition = audioFile.tellp();
+// //   int postAudioPosition = audioFile.tellp();
 
-//   audioFile.seekp(preAudioPosition - 4);
-//   writeToFile(audioFile, postAudioPosition - preAudioPosition, 4);
+// //   audioFile.seekp(preAudioPosition - 4);
+// //   writeToFile(audioFile, postAudioPosition - preAudioPosition, 4);
 
-//   audioFile.seekp(4, ios::beg);
-//   writeToFile(audioFile, postAudioPosition - 8, 4);
+// //   audioFile.seekp(4, ios::beg);
+// //   writeToFile(audioFile, postAudioPosition - 8, 4);
 
-//   audioFile.close();
+// //   audioFile.close();
 
-//   CreateFile2(data, postAudioPosition - preAudioPosition, postAudioPosition - 8);
-//   return 0;   
-// }
+// //   CreateFile2(data, postAudioPosition - preAudioPosition, postAudioPosition - 8);
+// //   return 0;   
+// // }
 
 void wifiConnect(){
   Serial.println("Connecting");
@@ -368,21 +403,22 @@ void playSpeaker(){
    
 }
 
-void setup() {
-  pinMode(WifiConnected,OUTPUT);
-  pinMode(motorInput,OUTPUT);
-
+void setup(){
+ 
   Serial.begin(9600);
-  //sd.begin();
 
-  if (!SD.begin(15))
-  {
-    Serial.println("SD Card Initialization Failed !");
+  delay(2000);
+  if(!SD.begin(15)){
+    Serial.println("Initialization Failed !");
     while(1);
   }
+
+  Serial.println("Initialization Done !");
+  //sd.begin();
+
+  //createFile();
+  createWAV();
   
-  Serial.println("Initialization Done!");
-  createFile();
   //createWAV();
 
   // if (!SPIFFS.begin())
